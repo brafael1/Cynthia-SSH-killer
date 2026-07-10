@@ -29,7 +29,7 @@ sudo ./bin/encerrar-sessoes-ssh.sh --ip 192.168.2.254
 ### Deploy e execução remota
 
 ```bash
-./remote-exec.sh -H 192.168.2.18 -u spying -p 'senha' -e 192.168.2.254
+./remote-exec.sh -H 192.168.2.18 -u 'usuario' -p 'senha' -e 192.168.2.254
 ```
 
 | Parâmetro | Descrição |
