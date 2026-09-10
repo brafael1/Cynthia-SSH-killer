@@ -2,7 +2,7 @@
 
 <p align="center">
     <a style="width: 100%">
-        <img src="https://media1.tenor.com/m/BjI5K2TSw98AAAAd/cinthya-pokemon.gif" width="300">
+        <img src="https://c.tenor.com/BjI5K2TSw98AAAAd/tenor.gif" width="300">
 </p>
         
 Sistema de encerramento de sessões SSH com avisos temáticos da equipe da campeã Cynthia (Sinnoh).
