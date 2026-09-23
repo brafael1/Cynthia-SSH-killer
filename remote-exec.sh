@@ -100,9 +100,12 @@ REMOTE_ROOT="$REMOTE_DIR/Cynthia-SSH-killer"
  
 source "$SCRIPT_DIR/lib/loader.sh"
 lib_carregar transport.sh
+lib_carregar sudo.sh
  
 TRANSPORT_KEY="$SSH_KEY"
 TRANSPORT_PASS="$REMOTE_PASS"
+TIPO_SUDO="nopasswd"
+[[ -n "$REMOTE_PASS" ]] && TIPO_SUDO="senha"
  
 echo "A campeã de Sinnoh Cynthia desfiou $DEST..."
  
@@ -114,21 +117,6 @@ SUDO_ENV='env PATH="$PATH"'
 KILLER_CMD="bash $REMOTE_ROOT/bin/encerrar-sessoes-ssh.sh --ip $IP_PERMITIDO"
  
 echo "→ Executando o killer (sudo)..."
-if [[ -n "$REMOTE_PASS" ]]; then
-    printf '%s\n' "$REMOTE_PASS" | ssh_executar "$DEST" "sudo -S -p '' $SUDO_ENV $KILLER_CMD"
-else
-    if ssh_executar "$DEST" "sudo -n $SUDO_ENV $KILLER_CMD"; then
-        :
-    else
-        rc=$?
-        if [[ "$rc" -eq 255 ]]; then
-            echo "A sessão do deploy foi encerrada pelo killer por último." >&2
-        else
-            echo "Erro: o sudo do host remoto pediu senha." >&2
-            echo "Configure sudoers NOPASSWD para $REMOTE_USER ou informe -p/--pass junto com -k/--key." >&2
-        fi
-        exit 1
-    fi
-fi
+sudo_executar "$DEST" "$TIPO_SUDO" "$SUDO_ENV $KILLER_CMD"
  
 echo "Operação remota concluída!"
