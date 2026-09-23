@@ -12,7 +12,7 @@ core_find_tty() {
 
     for pid in $pids; do
         local tty
-        tty=$(ps -p "$pid" -o tty= 2>/dev/null)
+        tty=$(ps -p "$pid" -o tty= 2>/dev/null) || true
         if [[ "$tty" != "?" && -n "$tty" ]]; then
             echo "$tty"
             return
@@ -35,10 +35,10 @@ core_listar_sessoes() {
             "$sessao" 2>/dev/null) || continue
 
         local remote usuario sessao_id leader
-        remote=$(echo "$props" | grep ^RemoteHost= | cut -d= -f2-)
-        usuario=$(echo "$props" | grep ^Name= | cut -d= -f2-)
-        sessao_id=$(echo "$props" | grep ^Id= | cut -d= -f2-)
-        leader=$(echo "$props" | grep ^Leader= | cut -d= -f2-)
+        remote=$(printf '%s\n' "$props" | grep '^RemoteHost=' | cut -d= -f2-) || true
+        usuario=$(printf '%s\n' "$props" | grep '^Name=' | cut -d= -f2-) || true
+        sessao_id=$(printf '%s\n' "$props" | grep '^Id=' | cut -d= -f2-) || true
+        leader=$(printf '%s\n' "$props" | grep '^Leader=' | cut -d= -f2-) || true
 
         [ -z "$remote" ] && continue
 
@@ -60,8 +60,5 @@ core_listar_sessoes() {
 
 core_encerrar_sessao() {
     local sessao=$1
-    if loginctl terminate-session "$sessao" 2>/dev/null; then
-        return 0
-    fi
-    return 1
+    loginctl terminate-session "$sessao" 2>/dev/null
 }
