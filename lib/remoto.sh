@@ -80,7 +80,7 @@ cli_remote() {
     local destino="$REMOTE_USER@$REMOTE_HOST"
     local root_remoto="$REMOTE_DIR/Cynthia-SSH-killer"
 
-    echo "A campeã de Sinnoh Cynthia desfiou $destino..."
+    echo "A campeã de Sinnoh Cynthia desafiou $destino..."
 
     if deploy_remoto "$ROOT/bin" "$ROOT/lib" "$destino" "$root_remoto" "$TIPO_SUDO" "$IP_PERMITIDO"; then
         echo "Operação remota concluída!"
