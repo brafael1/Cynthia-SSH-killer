@@ -9,8 +9,8 @@ Sistema de encerramento de sessões SSH com avisos temáticos da equipe da campe
 
 ## Requisitos
 
-- [pokeget](https://crates.io/crates/pokeget) — `cargo install pokeget`
-- `sshpass` — `apt install sshpass` (apenas para deploy remoto)
+- [pokeget](https://crates.io/crates/pokeget) — `cargo install pokeget` (opcional; sem ele o aviso vai apenas em texto)
+- `sshpass` — `apt install sshpass` (apenas para deploy remoto com senha)
 - `loginctl` (systemd)
 - `pstree`, `write`
 - `sudo` (necessário para encerrar sessões de outros processos)
@@ -20,28 +20,47 @@ Sistema de encerramento de sessões SSH com avisos temáticos da equipe da campe
 ```bash
 git clone https://github.com/brafael1/Cynthia-SSH-killer.git
 cd Cynthia-SSH-killer
-chmod +x bin/*.sh lib/*.sh lib/cynthia/*.sh remote-exec.sh
+chmod +x cynthia bin/*.sh lib/*.sh lib/cynthia/*.sh
 ```
 
 ## Uso
 
+Um único entry point despacha os dois modos:
+
+```bash
+./cynthia local  --ip 192.168.2.254        # encerra sessões deste host
+./cynthia remote -H <host> -u <user> ...   # envia e executa o killer em host remoto
+```
+
 ### Execução local
 
 ```bash
-sudo ./bin/encerrar-sessoes-ssh.sh --ip 192.168.2.254
+./cynthia local --ip 192.168.2.254
 ```
+
+Encerra as sessões SSH do próprio host (pede a senha do `sudo`).
 
 ### Deploy e execução remota
 
 ```bash
-./remote-exec.sh -H 192.168.2.18 -u 'usuario' -p 'senha' -e 192.168.2.254
+# Com senha
+./cynthia remote -H 192.168.2.18 -u 'usuario' -p 'senha' -e 192.168.2.254
+
+# Com chave (exige sudo NOPASSWD no host remoto)
+./cynthia remote -H 192.168.2.18 -u 'usuario' -k ~/.ssh/id_ed25519 -e 192.168.2.254
+
+# Com chave + senha para o sudo
+./cynthia remote -H 192.168.2.18 -u 'usuario' -k ~/.ssh/id_ed25519 -p 'senha_sudo' -e 192.168.2.254
 ```
+
+Informe `-k` (chave) ou `-p` (senha). Com ambos, a chave autentica o SSH e a senha é usada para o sudo (e como fallback do SSH). Chaves com passphrase exigem `ssh-agent`.
 
 | Parâmetro | Descrição |
 |-----------|-----------|
 | `-H, --host` | IP/hostname do host remoto |
 | `-u, --user` | Usuário SSH |
-| `-p, --pass` | Senha SSH |
+| `-k, --key` | Chave privada SSH |
+| `-p, --pass` | Senha SSH e/ou senha do sudo |
 | `-e, --ip-externo` | IP externo permitido |
 | `-d, --dir` | Diretório temporário (padrão: /tmp) |
 
@@ -49,16 +68,24 @@ sudo ./bin/encerrar-sessoes-ssh.sh --ip 192.168.2.254
 
 ```
 Cynthia-SSH-killer/
-├── remote-exec.sh              # Deploy remoto
+├── cynthia                       # Entry point único: cynthia local|remote
 ├── bin/
-│   └── encerrar-sessoes-ssh.sh # Entry point
-└── lib/
-    ├── core.sh                 # Gerenciamento de sessões
-    ├── notify.sh               # Envio de mensagens via TTY
+│   └── encerrar-sessoes-ssh.sh   # Killer: CLI + loop de encerramento (payload remoto)
+└── lib/                          # Camadas reaproveitáveis (dependência unidirecional)
+    ├── loader.sh                 # Bootstrap único: lib_carregar <modulo>
+    ├── args.sh                   # Validações de formato (IP, diretório)
+    ├── transport.sh              # SSH/SCP com chave ou senha
+    ├── sudo.sh                   # Execução do sudo remoto + diagnóstico de erro
+    ├── deploy.sh                 # Orquestração: envia payload e executa o killer
+    ├── remoto.sh                 # CLI do modo remote (cli_remote)
+    ├── sessions.sh               # Sessões logind: listar/filtrar/terminar/própria
+    ├── notify.sh                 # Envio de mensagens via TTY
     └── cynthia/
-        ├── aviso.sh            # Geração de avisos Pokemon
-        └── equipe.sh           # Dados da equipe
+        ├── aviso.sh              # Geração de avisos Pokemon
+        └── equipe.sh             # Dados da equipe
 ```
+
+Fluxo: `cynthia` é o único entry point — `local` encaminha direto ao killer local (via `sudo`); `remote` delega ao `remoto.sh` (`cli_remote`), que valida os argumentos, carrega os módulos via `lib/loader.sh` e chama o `deploy_remoto`. `deploy.sh` envia só o payload que o killer usa (`bin/` + `loader`, `sessions`, `notify`, `cynthia/*`) e usa `transport.sh` e `sudo.sh`. `sessions.sh`, `notify.sh` e `cynthia/*` são as folhas que rodam no host remoto.
 
 ## Equipe Cynthia (Platinum)
 

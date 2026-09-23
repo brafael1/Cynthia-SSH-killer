@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+    cat <<EOF
+Uso: $(basename "$0") <local|remote> [OPÇÕES]
+
+Opções:
+  -h, --help              Mostra esta ajuda
+  --ip IP                 IP permitido (modo local)
+  -H, --host HOST         IP/hostname do host remoto
+  -u, --user USUARIO      Usuário SSH do host remoto
+  -k, --key CHAVE         Chave privada SSH (alternativa à senha)
+  -p, --pass SENHA        Senha SSH e/ou senha do sudo
+  -e, --ip-externo IP     IP externo permitido
+  -d, --dir DIR           Diretório no host remoto (padrão: /tmp)
+
+Exemplos:
+  $(basename "$0") local --ip 192.168.2.254
+  $(basename "$0") remote -H 192.168.2.18 -u spying -k ~/.ssh/id_ed25519 -e 192.168.2.254
+  $(basename "$0") remote -H 192.168.2.18 -u spying -p 'senha' -e 192.168.2.254
+EOF
+    exit "${1:-0}"
+}
+
+MODULO="${1:-}"
+if [[ -z "$MODULO" ]]; then
+    usage
+fi
+
+case "$MODULO" in
+    -h|--help|help) usage ;;
+
+    local)
+        shift
+        for arg in "$@"; do
+            if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+                bash "$ROOT/bin/encerrar-sessoes-ssh.sh" "$@"
+                exit $?
+            fi
+        done
+        exec sudo bash "$ROOT/bin/encerrar-sessoes-ssh.sh" "$@"
+        ;;
+
+    remote)
+        shift
+        source "$ROOT/lib/loader.sh"
+        lib_carregar remoto.sh
+        cli_remote "$@"
+        ;;
+
+    *) echo "Erro: modo desconhecido: $MODULO" >&2; usage 1 ;;
+esac
