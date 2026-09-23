@@ -96,11 +96,12 @@ fi
  
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="$REMOTE_USER@$REMOTE_HOST"
-REMOTE_ROOT="$REMOTE_DIR/Cynthia-SSH-killer"
+ROOT_REMOTO="$REMOTE_DIR/Cynthia-SSH-killer"
  
 source "$SCRIPT_DIR/lib/loader.sh"
 lib_carregar transport.sh
 lib_carregar sudo.sh
+lib_carregar deploy.sh
  
 TRANSPORT_KEY="$SSH_KEY"
 TRANSPORT_PASS="$REMOTE_PASS"
@@ -109,14 +110,8 @@ TIPO_SUDO="nopasswd"
  
 echo "A campeã de Sinnoh Cynthia desfiou $DEST..."
  
-echo "→ Enviando o killer para $REMOTE_ROOT..."
-ssh_executar "$DEST" "rm -rf $REMOTE_ROOT && mkdir -p $REMOTE_ROOT"
-scp_enviar -r "$SCRIPT_DIR/bin" "$SCRIPT_DIR/lib" "$DEST:$REMOTE_ROOT/"
- 
-SUDO_ENV='env PATH="$PATH"'
-KILLER_CMD="bash $REMOTE_ROOT/bin/encerrar-sessoes-ssh.sh --ip $IP_PERMITIDO"
- 
-echo "→ Executando o killer (sudo)..."
-sudo_executar "$DEST" "$TIPO_SUDO" "$SUDO_ENV $KILLER_CMD"
- 
-echo "Operação remota concluída!"
+if deploy_remoto "$SCRIPT_DIR/bin" "$SCRIPT_DIR/lib" "$DEST" "$ROOT_REMOTO" "$TIPO_SUDO" "$IP_PERMITIDO"; then
+    echo "Operação remota concluída!"
+    exit 0
+fi
+exit 1
