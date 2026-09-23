@@ -46,6 +46,19 @@ if [[ -z "$REMOTE_HOST" || -z "$REMOTE_USER" || -z "$REMOTE_PASS" || -z "$IP_PER
     exit 1
 fi
 
+# Validação: os valores são interpolados na linha de comando executada
+# no host remoto; sem isso, valores com metacaracteres permitiriam
+# injeção de comandos arbitrários no remoto.
+if [[ ! "$REMOTE_DIR" =~ ^[A-Za-z0-9._/-]+$ ]]; then
+    echo "Erro: --dir contém caracteres inválidos: $REMOTE_DIR" >&2
+    exit 1
+fi
+
+if [[ ! "$IP_PERMITIDO" =~ ^[A-Za-z0-9.:]+$ ]]; then
+    echo "Erro: --ip-externo contém caracteres inválidos: $IP_PERMITIDO" >&2
+    exit 1
+fi
+
 # sshpass -e lê a senha do ambiente (não do argv, que é visível no `ps`)
 export SSHPASS="$REMOTE_PASS"
 
