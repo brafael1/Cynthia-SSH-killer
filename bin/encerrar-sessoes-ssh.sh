@@ -65,9 +65,9 @@ while IFS='|' read -r sessao_id usuario tty_display remote display; do
         "───────────────────────────────────────────"
  
     if [ -n "$display" ]; then
-        aviso=$(cynthia_gerar_aviso)
- 
-        if notify_enviar "$usuario" "$display" "$aviso"; then
+        aviso=$(cynthia_gerar_aviso) || aviso=""
+
+        if [[ -n "$aviso" ]] && notify_enviar "$usuario" "$display" "$aviso"; then
             echo "Aviso enviado para $display!"
         else
             echo "Não foi possível enviar aviso"
