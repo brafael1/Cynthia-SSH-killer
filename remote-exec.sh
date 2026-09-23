@@ -74,12 +74,25 @@ if [[ -z "$SSH_KEY" && -z "$REMOTE_PASS" ]]; then
     exit 1
 fi
  
-if [[ ! "$REMOTE_DIR" =~ ^[A-Za-z0-9._/-]+$ ]]; then
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ 
+source "$SCRIPT_DIR/lib/loader.sh"
+lib_carregar args.sh
+lib_carregar transport.sh
+lib_carregar sudo.sh
+lib_carregar deploy.sh
+ 
+TRANSPORT_KEY="$SSH_KEY"
+TRANSPORT_PASS="$REMOTE_PASS"
+TIPO_SUDO="nopasswd"
+[[ -n "$REMOTE_PASS" ]] && TIPO_SUDO="senha"
+ 
+if ! validar_formato_dir "$REMOTE_DIR"; then
     echo "Erro: --dir contém caracteres inválidos: $REMOTE_DIR" >&2
     exit 1
 fi
  
-if [[ ! "$IP_PERMITIDO" =~ ^[A-Za-z0-9.:]+$ ]]; then
+if ! validar_formato_ip "$IP_PERMITIDO"; then
     echo "Erro: --ip-externo contém caracteres inválidos: $IP_PERMITIDO" >&2
     exit 1
 fi
@@ -94,19 +107,8 @@ if [[ -n "$REMOTE_PASS" ]] && ! command -v sshpass &>/dev/null; then
     exit 1
 fi
  
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="$REMOTE_USER@$REMOTE_HOST"
 ROOT_REMOTO="$REMOTE_DIR/Cynthia-SSH-killer"
- 
-source "$SCRIPT_DIR/lib/loader.sh"
-lib_carregar transport.sh
-lib_carregar sudo.sh
-lib_carregar deploy.sh
- 
-TRANSPORT_KEY="$SSH_KEY"
-TRANSPORT_PASS="$REMOTE_PASS"
-TIPO_SUDO="nopasswd"
-[[ -n "$REMOTE_PASS" ]] && TIPO_SUDO="senha"
  
 echo "A campeã de Sinnoh Cynthia desfiou $DEST..."
  
