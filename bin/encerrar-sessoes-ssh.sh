@@ -4,8 +4,6 @@ set -euo pipefail
  
 usage() {
     echo "Uso: sudo $(basename "$0") --ip IP_PERMITIDO"
-    echo ""
-    echo "Encerra todas as sessões SSH, exceto a atual e as do IP permitido."
     exit 0
 }
  
@@ -13,23 +11,10 @@ if ! command -v pokeget &>/dev/null; then
     echo "Aviso: pokeget não encontrado — o aviso será apenas texto. Instale com: cargo install pokeget" >&2
 fi
  
-LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)"
- 
-if [[ ! -d "$LIB_DIR" ]]; then
-    echo "Erro: pasta 'lib/' não encontrada em $LIB_DIR" >&2
-    exit 1
-fi
- 
-for arquivo in core.sh notify.sh cynthia/aviso.sh; do
-    if [[ ! -f "$LIB_DIR/$arquivo" ]]; then
-        echo "Erro: '$arquivo' não encontrado em $LIB_DIR" >&2
-        exit 1
-    fi
-done
- 
-source "$LIB_DIR/core.sh"
-source "$LIB_DIR/notify.sh"
-source "$LIB_DIR/cynthia/aviso.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/loader.sh"
+lib_carregar core.sh
+lib_carregar notify.sh
+lib_carregar cynthia/aviso.sh
  
 IP_PERMITIDO=""
  
