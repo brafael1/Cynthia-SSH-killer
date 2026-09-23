@@ -11,6 +11,7 @@ ssh_executar() {
     local destino=$1
     shift
     local -a cmd=(ssh "${TRANSPORT_OPTS[@]}")
+    [[ -n "${TRANSPORT_PORT:-}" ]] && cmd+=(-p "$TRANSPORT_PORT")
     [[ -n "${TRANSPORT_KEY:-}" ]] && cmd+=(-i "$TRANSPORT_KEY")
     if [[ -n "${TRANSPORT_PASS:-}" ]]; then
         SSHPASS="$TRANSPORT_PASS" sshpass -e "${cmd[@]}" "$destino" "$@"
@@ -21,6 +22,7 @@ ssh_executar() {
 
 scp_enviar() {
     local -a cmd=(scp "${TRANSPORT_OPTS[@]}")
+    [[ -n "${TRANSPORT_PORT:-}" ]] && cmd+=(-P "$TRANSPORT_PORT")
     [[ -n "${TRANSPORT_KEY:-}" ]] && cmd+=(-i "$TRANSPORT_KEY")
     if [[ -n "${TRANSPORT_PASS:-}" ]]; then
         SSHPASS="$TRANSPORT_PASS" sshpass -e "${cmd[@]}" "$@"

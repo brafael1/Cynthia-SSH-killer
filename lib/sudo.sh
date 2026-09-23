@@ -26,7 +26,7 @@ sudo_executar() {
 
     if printf '%s\n' "$saida" | grep -qiE 'a password is required|interactive authentication is required|authentication failed|incorrect password|sorry, try again'; then
         echo "Erro: o sudo do host remoto pediu senha." >&2
-        echo "Configure sudoers NOPASSWD para ${REMOTE_USER:-} ou informe -p/--pass junto com -k/--key." >&2
+        echo "Configure sudoers NOPASSWD para ${REMOTE_USER:-${REMOTE_ALIAS:-}} ou informe -p/--pass junto com -k/--key." >&2
     elif printf '%s\n' "$saida" | grep -qE 'Sessao|derrotada|closed by remote host'; then
         printf '%s\n' "$saida" >&2
         echo "A sessão do deploy foi encerrada pelo killer por último." >&2
