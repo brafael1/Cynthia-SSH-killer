@@ -25,8 +25,6 @@ chmod +x cynthia bin/*.sh lib/*.sh lib/cynthia/*.sh
 
 ## Uso
 
-Um único entry point despacha os dois modos:
-
 ```bash
 ./cynthia local  --ip 192.168.2.254        # encerra sessões deste host
 ./cynthia remote -H <host> -u <user> ...   # envia e executa o killer em host remoto
@@ -68,25 +66,22 @@ Informe `-k` (chave) ou `-p` (senha). Com ambos, a chave autentica o SSH e a sen
 
 ```
 Cynthia-SSH-killer/
-├── cynthia                       # Entry point único: cynthia local|remote
+├── cynthia                       # Entry point
 ├── bin/
-│   └── encerrar-sessoes-ssh.sh   # Killer: CLI + loop de encerramento (payload remoto)
-└── lib/                          # Camadas reaproveitáveis (dependência unidirecional)
+│   └── encerrar-sessoes-ssh.sh   # Killer: CLI + loop de encerramento
+└── lib/                          # Camadas reaproveitáveis
     ├── loader.sh                 # Bootstrap único: lib_carregar <modulo>
-    ├── args.sh                   # Validações de formato (IP, diretório)
+    ├── args.sh                   # Validações de formato
     ├── transport.sh              # SSH/SCP com chave ou senha
     ├── sudo.sh                   # Execução do sudo remoto + diagnóstico de erro
     ├── deploy.sh                 # Orquestração: envia payload e executa o killer
-    ├── remoto.sh                 # CLI do modo remote (cli_remote)
+    ├── remoto.sh                 # CLI do modo remote
     ├── sessions.sh               # Sessões logind: listar/filtrar/terminar/própria
     ├── notify.sh                 # Envio de mensagens via TTY
     └── cynthia/
         ├── aviso.sh              # Geração de avisos Pokemon
         └── equipe.sh             # Dados da equipe
 ```
-
-Fluxo: `cynthia` é o único entry point — `local` encaminha direto ao killer local (via `sudo`); `remote` delega ao `remoto.sh` (`cli_remote`), que valida os argumentos, carrega os módulos via `lib/loader.sh` e chama o `deploy_remoto`. `deploy.sh` envia só o payload que o killer usa (`bin/` + `loader`, `sessions`, `notify`, `cynthia/*`) e usa `transport.sh` e `sudo.sh`. `sessions.sh`, `notify.sh` e `cynthia/*` são as folhas que rodam no host remoto.
-
 ## Equipe Cynthia (Platinum)
 
 | Pokemon | Golpe |
