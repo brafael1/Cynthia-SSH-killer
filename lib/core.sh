@@ -8,7 +8,7 @@ _CORE_LOADED=1
 core_find_tty() {
     local leader=$1
     local pids
-    pids=$(pstree -p "$leader" 2>/dev/null | grep -oP '\(\K\d+(?=\))')
+    pids=$(pstree -p "$leader" 2>/dev/null | grep -oE '\([0-9]+\)' | tr -d '()') || true
 
     for pid in $pids; do
         local tty
