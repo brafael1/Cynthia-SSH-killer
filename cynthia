@@ -8,24 +8,17 @@ usage() {
     cat <<EOF
 Uso: $(basename "$0") <local|remote> [OPÇÕES]
 
-Entry point único do Cynthia-SSH-killer.
+Opções:
+  -h, --help              Mostra esta ajuda
+  --ip IP                 IP permitido (modo local)
+  -H, --host HOST         IP/hostname do host remoto
+  -u, --user USUARIO      Usuário SSH do host remoto
+  -k, --key CHAVE         Chave privada SSH (alternativa à senha)
+  -p, --pass SENHA        Senha SSH e/ou senha do sudo
+  -e, --ip-externo IP     IP externo permitido
+  -d, --dir DIR           Diretório no host remoto (padrão: /tmp)
 
-MODO LOCAL — encerra as sessões SSH deste host (exige sudo):
-  $(basename "$0") local --ip IP_PERMITIDO
-
-MODO REMOTO — envia e executa o killer em um host remoto:
-  $(basename "$0") remote -H HOST -u USUARIO -e IP_EXTERNO [-k CHAVE] [-p SENHA] [-d DIR]
-
-OPÇÕES GERAIS:
-  -h, --help        Mostra esta ajuda
-
-AUTENTICAÇÃO REMOTA:
-  - Chave: -k. Com senha na chave, use ssh-agent.
-    Sem -p, o sudo remoto precisa estar configurado como NOPASSWD.
-  - Senha: -p (usada no SSH e no sudo).
-  - Ambos: -k autentica o SSH; -p é o fallback do SSH e a senha do sudo.
-
-EXEMPLOS:
+Exemplos:
   $(basename "$0") local --ip 192.168.2.254
   $(basename "$0") remote -H 192.168.2.18 -u spying -k ~/.ssh/id_ed25519 -e 192.168.2.254
   $(basename "$0") remote -H 192.168.2.18 -u spying -p 'senha' -e 192.168.2.254
