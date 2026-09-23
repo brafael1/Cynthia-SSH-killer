@@ -10,8 +10,7 @@ usage() {
 }
  
 if ! command -v pokeget &>/dev/null; then
-    echo "Erro: pokeget não encontrado. Instale com: cargo install pokeget" >&2
-    exit 1
+    echo "Aviso: pokeget não encontrado — o aviso será apenas texto. Instale com: cargo install pokeget" >&2
 fi
  
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)"

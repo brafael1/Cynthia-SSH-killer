@@ -14,12 +14,16 @@ cynthia_gerar_aviso() {
     local pokemon="${entrada%%|*}"
     local golpe="${entrada#*|}"
 
-    local sprite
-    sprite=$(pokeget "$pokemon" --hide-name 2>/dev/null) || return 1
+    local aviso=""
+    if command -v pokeget &>/dev/null; then
+        local sprite
+        sprite=$(pokeget "$pokemon" --hide-name 2>/dev/null) || sprite=""
+        if [[ -n "$sprite" ]]; then
+            aviso="$sprite"$'\n\n'
+        fi
+    fi
 
-    local aviso
-    aviso="$sprite"
-    aviso+=$(printf '\n\n   %s USE %s!' "${pokemon^^}" "${golpe^^}")
+    aviso+=$(printf '   %s USE %s!' "${pokemon^^}" "${golpe^^}")
     aviso+=$(printf '\n\n   SUA SESSAO SSH SERA ENCERRADA EM 3 SEGUNDOS!')
 
     echo "$aviso"

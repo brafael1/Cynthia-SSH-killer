@@ -9,7 +9,7 @@ Sistema de encerramento de sessões SSH com avisos temáticos da equipe da campe
 
 ## Requisitos
 
-- [pokeget](https://crates.io/crates/pokeget) — `cargo install pokeget`
+- [pokeget](https://crates.io/crates/pokeget) — `cargo install pokeget` (opcional; sem ele o aviso vai apenas em texto)
 - `sshpass` — `apt install sshpass` (apenas para deploy remoto com senha)
 - `loginctl` (systemd)
 - `pstree`, `write`
