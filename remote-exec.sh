@@ -66,18 +66,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "A campeã de Sinnoh Cynthia desfiou $REMOTE_USER@$REMOTE_HOST..."
 
-sshpass -e ssh -o StrictHostKeyChecking=no \
+sshpass -e ssh -o StrictHostKeyChecking=accept-new \
     "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_DIR/Cynthia-SSH-killer/bin $REMOTE_DIR/Cynthia-SSH-killer/lib"
 
-sshpass -e scp -o StrictHostKeyChecking=no -r \
+sshpass -e scp -o StrictHostKeyChecking=accept-new -r \
     "$SCRIPT_DIR/bin/encerrar-sessoes-ssh.sh" \
     "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/Cynthia-SSH-killer/bin/"
 
-sshpass -e scp -o StrictHostKeyChecking=no -r \
+sshpass -e scp -o StrictHostKeyChecking=accept-new -r \
     "$SCRIPT_DIR/lib/"* \
     "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/Cynthia-SSH-killer/lib/"
 
-sshpass -e ssh -o StrictHostKeyChecking=no \
+sshpass -e ssh -o StrictHostKeyChecking=accept-new \
     "$REMOTE_USER@$REMOTE_HOST" \
     "sudo -S -p '' bash $REMOTE_DIR/Cynthia-SSH-killer/bin/encerrar-sessoes-ssh.sh --ip $IP_PERMITIDO" \
     <<< "$REMOTE_PASS"
