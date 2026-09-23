@@ -74,7 +74,7 @@ if [[ -z "$SSH_KEY" && -z "$REMOTE_PASS" ]]; then
     exit 1
 fi
  
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
  
 source "$SCRIPT_DIR/lib/loader.sh"
 lib_carregar args.sh
