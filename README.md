@@ -76,7 +76,8 @@ Cynthia-SSH-killer/
     ├── args.sh                   # Validações de formato (IP, diretório)
     ├── transport.sh              # SSH/SCP com chave ou senha
     ├── sudo.sh                   # Execução do sudo remoto + diagnóstico de erro
-    ├── deploy.sh                 # Orquestração: envia arquivos e executa o killer
+    ├── deploy.sh                 # Orquestração: envia payload e executa o killer
+    ├── remoto.sh                 # CLI do modo remote (cli_remote)
     ├── sessions.sh               # Sessões logind: listar/filtrar/terminar/própria
     ├── notify.sh                 # Envio de mensagens via TTY
     └── cynthia/
@@ -84,7 +85,7 @@ Cynthia-SSH-killer/
         └── equipe.sh             # Dados da equipe
 ```
 
-Fluxo: `cynthia` é o único entry point — `local` encaminha direto ao killer local (via `sudo`); `remote` valida argumentos, carrega os módulos via `lib/loader.sh` e delega ao `deploy.sh`. `deploy.sh` usa `transport.sh` e `sudo.sh`; `sessions.sh`, `notify.sh` e `cynthia/*` são independentes (folhas).
+Fluxo: `cynthia` é o único entry point — `local` encaminha direto ao killer local (via `sudo`); `remote` delega ao `remoto.sh` (`cli_remote`), que valida os argumentos, carrega os módulos via `lib/loader.sh` e chama o `deploy_remoto`. `deploy.sh` envia só o payload que o killer usa (`bin/` + `loader`, `sessions`, `notify`, `cynthia/*`) e usa `transport.sh` e `sudo.sh`. `sessions.sh`, `notify.sh` e `cynthia/*` são as folhas que rodam no host remoto.
 
 ## Equipe Cynthia (Platinum)
 
