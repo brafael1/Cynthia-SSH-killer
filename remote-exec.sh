@@ -129,7 +129,7 @@ echo "→ Enviando o killer para $REMOTE_ROOT..."
 ssh_run "rm -rf $REMOTE_ROOT && mkdir -p $REMOTE_ROOT"
 scp_run -r "$SCRIPT_DIR/bin" "$SCRIPT_DIR/lib" "$DEST:$REMOTE_ROOT/"
  
-SUDO_ENV='env PATH="$PATH" SSH_CLIENT="${SSH_CLIENT:-}"'
+SUDO_ENV='env PATH="$PATH"'
 KILLER_CMD="bash $REMOTE_ROOT/bin/encerrar-sessoes-ssh.sh --ip $IP_PERMITIDO"
  
 echo "→ Executando o killer (sudo)..."
