@@ -136,9 +136,16 @@ echo "→ Executando o killer (sudo)..."
 if [[ -n "$REMOTE_PASS" ]]; then
     printf '%s\n' "$REMOTE_PASS" | ssh_run "sudo -S -p '' $SUDO_ENV $KILLER_CMD"
 else
-    if ! ssh_run "sudo -n $SUDO_ENV $KILLER_CMD"; then
-        echo "Erro: o sudo do host remoto pediu senha." >&2
-        echo "Configure sudoers NOPASSWD para $REMOTE_USER ou informe -p/--pass junto com -k/--key." >&2
+    if ssh_run "sudo -n $SUDO_ENV $KILLER_CMD"; then
+        :
+    else
+        rc=$?
+        if [[ "$rc" -eq 255 ]]; then
+            echo "A sessão do deploy foi encerrada pelo killer por último (esperado quando o IP de origem também é alvo)." >&2
+        else
+            echo "Erro: o sudo do host remoto pediu senha." >&2
+            echo "Configure sudoers NOPASSWD para $REMOTE_USER ou informe -p/--pass junto com -k/--key." >&2
+        fi
         exit 1
     fi
 fi
