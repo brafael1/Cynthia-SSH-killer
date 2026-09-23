@@ -21,10 +21,22 @@ core_find_tty() {
     echo ""
 }
 
+core_sessao_propria() {
+    local scope
+    scope=$(grep -oE 'session-[A-Za-z0-9_-]+\.scope' /proc/self/cgroup 2>/dev/null | head -1) || true
+    scope="${scope#session-}"
+    printf '%s' "${scope%.scope}"
+}
+
 core_listar_sessoes() {
     local ip_permitido=$1
     local ip_atual=$2
     local tty_atual=$3
+
+    local propria
+    propria=$(core_sessao_propria)
+    local outras=""
+    local propria_linha=""
 
     while read -r sessao; do
         [ -z "$sessao" ] && continue
@@ -54,8 +66,18 @@ core_listar_sessoes() {
         local tty_display="$display"
         [ -z "$tty_display" ] && tty_display="(sem tty)"
 
-        printf '%s\n' "$sessao_id|$usuario|$tty_display|$remote|$display"
+        local linha="$sessao_id|$usuario|$tty_display|$remote|$display"
+        if [[ -n "$propria" && "$sessao_id" == "$propria" ]]; then
+            propria_linha="$linha"
+        else
+            outras+="$linha"$'\n'
+        fi
     done < <(loginctl list-sessions --no-legend 2>/dev/null | awk '{print $1}')
+
+    printf '%s' "$outras"
+    if [[ -n "$propria_linha" ]]; then
+        printf '%s\n' "$propria_linha"
+    fi
 }
 
 core_encerrar_sessao() {
