@@ -36,8 +36,14 @@ IP_PERMITIDO=""
  
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --ip) IP_PERMITIDO="$2"; shift 2 ;;
-        *) shift ;;
+        --ip)
+            if [[ $# -lt 2 ]]; then
+                echo "Erro: --ip requer um valor" >&2
+                exit 1
+            fi
+            IP_PERMITIDO="$2"; shift 2 ;;
+        -h|--help) usage ;;
+        *) echo "Opção desconhecida: $1" >&2; exit 1 ;;
     esac
 done
  
