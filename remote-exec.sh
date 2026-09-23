@@ -46,21 +46,25 @@ if [[ -z "$REMOTE_HOST" || -z "$REMOTE_USER" || -z "$REMOTE_PASS" || -z "$IP_PER
     exit 1
 fi
 
+# sshpass -e lê a senha do ambiente (não do argv, que é visível no `ps`)
+export SSHPASS="$REMOTE_PASS"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "A campeã de Sinnoh Cynthia desfiou $REMOTE_USER@$REMOTE_HOST..."
 
-sshpass -p "$REMOTE_PASS" ssh -o StrictHostKeyChecking=no \
+sshpass -e ssh -o StrictHostKeyChecking=no \
     "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_DIR/Cynthia-SSH-killer/bin $REMOTE_DIR/Cynthia-SSH-killer/lib"
 
-sshpass -p "$REMOTE_PASS" scp -o StrictHostKeyChecking=no -r \
+sshpass -e scp -o StrictHostKeyChecking=no -r \
     "$SCRIPT_DIR/bin/encerrar-sessoes-ssh.sh" \
     "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/Cynthia-SSH-killer/bin/"
 
-sshpass -p "$REMOTE_PASS" scp -o StrictHostKeyChecking=no -r \
+sshpass -e scp -o StrictHostKeyChecking=no -r \
     "$SCRIPT_DIR/lib/"* \
     "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/Cynthia-SSH-killer/lib/"
 
-sshpass -p "$REMOTE_PASS" ssh -o StrictHostKeyChecking=no \
+sshpass -e ssh -o StrictHostKeyChecking=no \
     "$REMOTE_USER@$REMOTE_HOST" \
-    "echo '$REMOTE_PASS' | sudo -S bash $REMOTE_DIR/Cynthia-SSH-killer/bin/encerrar-sessoes-ssh.sh --ip $IP_PERMITIDO"
+    "sudo -S -p '' bash $REMOTE_DIR/Cynthia-SSH-killer/bin/encerrar-sessoes-ssh.sh --ip $IP_PERMITIDO" \
+    <<< "$REMOTE_PASS"
