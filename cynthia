@@ -13,6 +13,8 @@ Opções:
   --ip IP                 IP permitido (modo local)
   -H, --host HOST         IP/hostname do host remoto
   -u, --user USUARIO      Usuário SSH do host remoto
+  -a, --alias ALIAS       Alias do ~/.ssh/config (dispensa -H/-u)
+  -P, --port PORTA        Porta SSH do host remoto (padrão: 22)
   -k, --key CHAVE         Chave privada SSH (alternativa à senha)
   -p, --pass SENHA        Senha SSH e/ou senha do sudo
   -e, --ip-externo IP     IP externo permitido
@@ -21,6 +23,7 @@ Opções:
 Exemplos:
   $(basename "$0") local --ip 192.168.2.254
   $(basename "$0") remote -H 192.168.2.18 -u spying -k ~/.ssh/id_ed25519 -e 192.168.2.254
+  $(basename "$0") remote -a meuservidor -e 192.168.2.254
   $(basename "$0") remote -H 192.168.2.18 -u spying -p 'senha' -e 192.168.2.254
 EOF
     exit "${1:-0}"

@@ -28,6 +28,7 @@ chmod +x cynthia bin/*.sh lib/*.sh lib/cynthia/*.sh
 ```bash
 ./cynthia local  --ip 192.168.2.254        # encerra sessões deste host
 ./cynthia remote -H <host> -u <user> ...   # envia e executa o killer em host remoto
+./cynthia remote -a <alias> -e <ip>        # igual, usando um alias do ~/.ssh/config
 ```
 
 ### Execução local
@@ -53,10 +54,32 @@ Encerra as sessões SSH do próprio host (pede a senha do `sudo`).
 
 Informe `-k` (chave) ou `-p` (senha). Com ambos, a chave autentica o SSH e a senha é usada para o sudo (e como fallback do SSH). Chaves com passphrase exigem `ssh-agent`.
 
+### Usando aliases do `~/.ssh/config`
+
+Se você já tem um alias configurado, o deploy pode reusá-lo — exatamente como `ssh <alias>`:
+
+```bash
+./cynthia remote -a meuservidor -e 192.168.2.254
+```
+
+O `-a/--alias` lê o `~/.ssh/config`, usa o alias como destino do SSH/SCP e honra tudo que o arquivo define (host, usuário, porta, chave, `ProxyJump`, etc.), além de dispensar `-H`/`-u`. `-p` continua opcional para o sudo, e `-k`/`-P` podem ser usados para sobrescrever o que o config define. Exemplo de config:
+
+```
+Host meuservidor
+    HostName 192.168.2.18
+    User usuario
+    Port 2222
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+O alias não pode ser combinado com `-H`/`-u` (erro). Se nenhum alias for informado, o comportamento é o mesmo de antes.
+
 | Parâmetro | Descrição |
 |-----------|-----------|
 | `-H, --host` | IP/hostname do host remoto |
 | `-u, --user` | Usuário SSH |
+| `-a, --alias` | Alias do `~/.ssh/config` (dispensa `-H`/`-u`) |
+| `-P, --port` | Porta SSH (padrão: a do config ou 22) |
 | `-k, --key` | Chave privada SSH |
 | `-p, --pass` | Senha SSH e/ou senha do sudo |
 | `-e, --ip-externo` | IP externo permitido |
@@ -72,7 +95,8 @@ Cynthia-SSH-killer/
 └── lib/                          # Camadas reaproveitáveis
     ├── loader.sh                 # Bootstrap único: lib_carregar <modulo>
     ├── args.sh                   # Validações de formato
-    ├── transport.sh              # SSH/SCP com chave ou senha
+    ├── ssh_config.sh             # Resolução de aliases do ~/.ssh/config
+    ├── transport.sh              # SSH/SCP com chave, senha e porta
     ├── sudo.sh                   # Execução do sudo remoto + diagnóstico de erro
     ├── deploy.sh                 # Orquestração: envia payload e executa o killer
     ├── remoto.sh                 # CLI do modo remote
