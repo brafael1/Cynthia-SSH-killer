@@ -20,7 +20,7 @@ Sistema de encerramento de sessões SSH com avisos temáticos da equipe da campe
 ```bash
 git clone https://github.com/brafael1/Cynthia-SSH-killer.git
 cd Cynthia-SSH-killer
-chmod +x bin/*.sh lib/*.sh lib/cynthia/*.sh remote-exec.sh
+chmod +x bin/*.sh lib/*.sh lib/cynthia/*.sh
 ```
 
 ## Uso
@@ -35,13 +35,13 @@ sudo ./bin/encerrar-sessoes-ssh.sh --ip 192.168.2.254
 
 ```bash
 # Com senha
-./remote-exec.sh -H 192.168.2.18 -u 'usuario' -p 'senha' -e 192.168.2.254
+./bin/remote-exec.sh -H 192.168.2.18 -u 'usuario' -p 'senha' -e 192.168.2.254
 
 # Com chave (exige sudo NOPASSWD no host remoto)
-./remote-exec.sh -H 192.168.2.18 -u 'usuario' -k ~/.ssh/id_ed25519 -e 192.168.2.254
+./bin/remote-exec.sh -H 192.168.2.18 -u 'usuario' -k ~/.ssh/id_ed25519 -e 192.168.2.254
 
 # Com chave + senha para o sudo
-./remote-exec.sh -H 192.168.2.18 -u 'usuario' -k ~/.ssh/id_ed25519 -p 'senha_sudo' -e 192.168.2.254
+./bin/remote-exec.sh -H 192.168.2.18 -u 'usuario' -k ~/.ssh/id_ed25519 -p 'senha_sudo' -e 192.168.2.254
 ```
 
 Informe `-k` (chave) ou `-p` (senha). Com ambos, a chave autentica o SSH e a senha é usada para o sudo (e como fallback do SSH). Chaves com passphrase exigem `ssh-agent`.
@@ -59,16 +59,23 @@ Informe `-k` (chave) ou `-p` (senha). Com ambos, a chave autentica o SSH e a sen
 
 ```
 Cynthia-SSH-killer/
-├── remote-exec.sh              # Deploy remoto
-├── bin/
-│   └── encerrar-sessoes-ssh.sh # Entry point
-└── lib/
-    ├── core.sh                 # Gerenciamento de sessões
-    ├── notify.sh               # Envio de mensagens via TTY
+├── bin/                          # Entradas de programa
+│   ├── encerrar-sessoes-ssh.sh   # Killer: CLI + loop de encerramento de sessões
+│   └── remote-exec.sh            # Cliente: CLI + deploy e execução remota
+└── lib/                          # Camadas reaproveitáveis (dependência unidirecional)
+    ├── loader.sh                 # Bootstrap único: lib_carregar <modulo>
+    ├── args.sh                   # Validações de formato (IP, diretório)
+    ├── transport.sh              # SSH/SCP com chave ou senha
+    ├── sudo.sh                   # Execução do sudo remoto + diagnóstico de erro
+    ├── deploy.sh                 # Orquestração: envia arquivos e executa o killer
+    ├── sessions.sh               # Sessões logind: listar/filtrar/terminar/própria
+    ├── notify.sh                 # Envio de mensagens via TTY
     └── cynthia/
-        ├── aviso.sh            # Geração de avisos Pokemon
-        └── equipe.sh           # Dados da equipe
+        ├── aviso.sh              # Geração de avisos Pokemon
+        └── equipe.sh             # Dados da equipe
 ```
+
+Fluxo: `bin/*` valida argumentos, carrega módulos via `lib/loader.sh` e delega. `deploy.sh` usa `transport.sh` e `sudo.sh`; `sessions.sh`, `notify.sh` e `cynthia/*` são independentes (folhas).
 
 ## Equipe Cynthia (Platinum)
 

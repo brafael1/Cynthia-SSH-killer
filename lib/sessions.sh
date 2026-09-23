@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_CORE_LOADED:-}" ]]; then
+if [[ -n "${_SESSIONS_LOADED:-}" ]]; then
     return 0
 fi
-_CORE_LOADED=1
+_SESSIONS_LOADED=1
 
-core_find_tty() {
+sessoes_achar_tty() {
     local leader=$1
     local pids
     pids=$(pstree -p "$leader" 2>/dev/null | grep -oE '\([0-9]+\)' | tr -d '()') || true
@@ -21,20 +21,20 @@ core_find_tty() {
     echo ""
 }
 
-core_sessao_propria() {
+sessoes_propria() {
     local scope
     scope=$(grep -oE 'session-[A-Za-z0-9_-]+\.scope' /proc/self/cgroup 2>/dev/null | head -1) || true
     scope="${scope#session-}"
     printf '%s' "${scope%.scope}"
 }
 
-core_listar_sessoes() {
+sessoes_listar() {
     local ip_permitido=$1
     local ip_atual=$2
     local tty_atual=$3
 
     local propria
-    propria=$(core_sessao_propria)
+    propria=$(sessoes_propria)
     local outras=""
     local propria_linha=""
 
@@ -60,7 +60,7 @@ core_listar_sessoes() {
         [[ -n "$ip_atual" && "$remote" == "$ip_atual" ]] && continue
 
         local display
-        display=$(core_find_tty "$leader")
+        display=$(sessoes_achar_tty "$leader")
         [[ -n "$tty_atual" && "$display" == "$tty_atual" ]] && continue
 
         local tty_display="$display"
@@ -80,7 +80,7 @@ core_listar_sessoes() {
     fi
 }
 
-core_encerrar_sessao() {
+sessoes_encerrar() {
     local sessao=$1
     loginctl terminate-session "$sessao" 2>/dev/null
 }

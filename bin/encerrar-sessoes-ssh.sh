@@ -12,7 +12,7 @@ if ! command -v pokeget &>/dev/null; then
 fi
  
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/loader.sh"
-lib_carregar core.sh
+lib_carregar sessions.sh
 lib_carregar notify.sh
 lib_carregar cynthia/aviso.sh
  
@@ -65,12 +65,12 @@ while IFS='|' read -r sessao_id usuario tty_display remote display; do
         sleep 3
     fi
  
-    if core_encerrar_sessao "$sessao_id"; then
+    if sessoes_encerrar "$sessao_id"; then
         echo "Sessão $sessao_id derrotada!"
     else
         echo "Sessão $sessao_id fugiu da Cynthia"
     fi
     echo ""
-done < <(core_listar_sessoes "$IP_PERMITIDO" "$IP_ATUAL" "$TTY_ATUAL")
+done < <(sessoes_listar "$IP_PERMITIDO" "$IP_ATUAL" "$TTY_ATUAL")
  
 echo "Operação concluída! Sessões de $IP_PERMITIDO mantidas."
