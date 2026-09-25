@@ -5,20 +5,6 @@ if [[ -n "${_SSH_CONFIG_LOADED:-}" ]]; then
 fi
 _SSH_CONFIG_LOADED=1
 
-# Lê um alias do ~/.ssh/config e expõe os parâmetros de conexão nas globais:
-#   AC_HOSTNAME  → valor de HostName (vazio se o bloco não define)
-#   AC_USER      → valor de User
-#   AC_PORT      → valor de Port
-#   AC_IDENTITY  → primeira IdentityFile (com ~ expandido)
-#
-# Segue a semântica do ssh: todo bloco Host que casar contribui e o primeiro
-# valor obtido de cada parâmetro vence (o que significa que o fim da lista
-# também vale, pois blocos que não casam são ignorados).
-#
-# Retorno:
-#   0  alias resolvido (parâmetros não definidos ficam vazios)
-#   1  ~/.ssh/config não encontrado
-#   2  nenhum bloco Host casou com o alias
 resolver_alias_ssh() {
     local alias_alvo=$1
     local config=${SSH_CONFIG_FILE:-"$HOME/.ssh/config"}
@@ -53,8 +39,6 @@ resolver_alias_ssh() {
                 p_lc="$(printf '%s' "$p" | tr 'A-Z' 'a-z')"
                 if [[ "$alvo_lc" == $p_lc ]]; then
                     achou_alvo=1
-                    # "Host *" é catch-all: contribui com defaults, mas não
-                    # conta como definição de um alias específico.
                     [[ "$p_lc" != "*" ]] && ja_casou=1
                 fi
             done
